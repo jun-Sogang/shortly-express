@@ -129,7 +129,17 @@ app.get('/create', function(req, res) {
 
 // LOGIN //
 app.post('/login', function(req, res) {
-  console.log(req.body);
+  var username = req.body.username;
+  var password = req.body.password;
+
+  new User({username: username}).fetch().then(function(found) {
+    if (found && found.validPass(password)) {
+      req.session["username"] = username;
+      res.redirect("/create");
+    } else {
+      res.render('login', {message: "Invalid username or password"});
+    }
+  })
 });
 
 app.get('/login', function(req, res) {

@@ -14,6 +14,9 @@ var User = db.Model.extend({
       var hash = bcrypt.hashSync(model.get('password'));
       model.set('password', hash);
     });
+  },
+  validPass: function(pass) {
+    return bcrypt.compareSync(pass, this.get('password'));
   }
 });
 
