@@ -54,7 +54,7 @@ app.use(session(sessionSettings));
 // HOME
 app.get('/', function(req, res) {
   if (!req.session.username) {
-    res.render('login', {message: "You must be logged in to access this resource"});
+    res.render('login', {message: ""});
   } else {
     res.redirect('/create');
   }
@@ -78,14 +78,18 @@ app.post('/signup', function(req, res) {
       if (found) {
         res.render('signup', {message: "Username already exists"});
       } else {
-        Users.create({
-          username: username,
-          password: password,
-        })
-        .then(function(newLink) {
-          req.session["username"] = username;
-          res.redirect("/create");
-        });
+        if (password.match(/^[a-zA-Z0-9]{1,8}$/)) {
+          res.render('signup', {message: "Your password sucks, please try harder"});
+        } else {
+          Users.create({
+            username: username,
+            password: password,
+          })
+          .then(function(newLink) {
+            req.session["username"] = username;
+            res.redirect("/create");
+          });
+        }
       }
     })
   } else {
@@ -185,14 +189,16 @@ app.post('/links', function(req, res) {
           console.log('Error reading URL heading: ', err);
           return res.send(404);
         }
-
-        Links.create({
-          url: uri,
-          title: title,
-          base_url: req.headers.origin
-        })
-        .then(function(newLink) {
-          res.send(200, newLink);
+        new User({username: req.session.username}).fetch().then(function(found) {
+          Links.create({
+            url: uri,
+            title: title,
+            base_url: req.headers.origin,
+            user_id: found.id
+          })
+          .then(function(newLink) {
+            res.send(200, newLink);
+          });
         });
       });
     }
