@@ -6,7 +6,7 @@ var Users = require('../app/collections/users');
 var util  = require('../lib/utility');
 
 router.get('/', function(req, res) {
-  if (!req.session.username) {
+  if (req.session.username) {
     res.redirect('/create');
   } else {
     res.render('signup', {message: ""});
