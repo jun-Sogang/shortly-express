@@ -78,18 +78,14 @@ app.post('/signup', function(req, res) {
       if (found) {
         res.render('signup', {message: "Username already exists"});
       } else {
-        if (password.match(/^[a-zA-Z0-9]{1,8}$/)) {
-          res.render('signup', {message: "Your password sucks, please try harder"});
-        } else {
           Users.create({
-            username: username,
-            password: password,
-          })
-          .then(function(newLink) {
-            req.session["username"] = username;
-            res.redirect("/create");
-          });
-        }
+          username: username,
+          password: password,
+        })
+        .then(function(newLink) {
+          req.session["username"] = username;
+          res.redirect("/create");
+        });
       }
     })
   } else {
