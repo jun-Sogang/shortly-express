@@ -4,7 +4,7 @@ var util    = require('../lib/utility');
 
 router.get('/', function(req, res) {
   if (req.session.username) {
-    delete req.session["username"];
+    req.session.destroy();
     res.render('login', {message: "You've been logged out"});
   } else {
     res.redirect('/login');
