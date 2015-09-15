@@ -44,7 +44,6 @@ router.post('/', function(req, res) {
             request({url: uri + "/favicon.ico", encoding: null}, function (error, response, body) {
               if (!error && response.statusCode == 200 && body.length != 0) {
                 fs.writeFile('public/favicons/' + newLink.get('code') + '.ico', body, function(err) {
-                  console.log("done!");
                   res.send(200, newLink);
                 });
               } else {
