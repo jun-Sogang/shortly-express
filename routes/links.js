@@ -11,9 +11,13 @@ var Users = require('../app/collections/users');
 
 // LINKS //
 router.get('/', function(req, res) {
-  Links.reset().fetch().then(function(links) {
-    res.send(200, links.models);
-  });
+  if (req.session.username) {
+    Links.reset().fetch().then(function(links) {
+      res.send(200, links.models);
+    });
+  } else {
+    res.render('login', {message: "You must be logged in to access this resource"});
+  }
 });
 
 router.post('/', function(req, res) {
