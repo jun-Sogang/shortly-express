@@ -3,11 +3,10 @@ var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser')
-var session = require('express-session')
 
-var redis        = require('redis');
-var session      = require('express-session');
-var redisStore   = require('connect-redis')(session);
+// SQLite Session Store
+var session = require('express-session');
+var SQLiteStore = require('connect-sqlite3')(session);
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -15,11 +14,6 @@ var User = require('./app/models/user');
 var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
-
-// Redis session store
-var redis        = require('redis');
-var session      = require('express-session');
-var redisStore   = require('connect-redis')(session);
 
 var app = express();
 
@@ -36,6 +30,7 @@ app.use(express.static(__dirname + '/public'));
 // Session store
 app.use(cookieParser("6B5AB77062FE3D565FBF7A253AD99BEC"));
 
+/*
 var sessionSettings = {
   key: "C1D28AD5AEE9ECA839086C399A21C210",
   store: new redisStore(),
@@ -48,6 +43,13 @@ var sessionSettings = {
 };
 
 app.use(session(sessionSettings));
+*/
+
+app.use(session({
+  store: new SQLiteStore({dir: 'db'}),
+  secret: '2E0D558EBAE31E93BC4C92FCDDBE3F6F',
+  dir: "db"
+}));
 
 app.use(function(req, res, next) {
   //console.log(req.session);
