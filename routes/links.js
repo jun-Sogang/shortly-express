@@ -1,4 +1,6 @@
 var express = require('express');
+var request = require('request');
+var fs      = require('fs');
 var router  = express.Router();
 
 var util  = require('../lib/utility');
@@ -39,7 +41,17 @@ router.post('/', function(req, res) {
             user_id: found.id
           })
           .then(function(newLink) {
-            res.send(200, newLink);
+            request({url: uri + "/favicon.ico", encoding: null}, function (error, response, body) {
+              if (!error && response.statusCode == 200 && body.length != 0) {
+                fs.writeFile('public/favicons/' + newLink.get('code') + '.ico', body, function(err) {
+                  console.log("done!");
+                  res.send(200, newLink);
+                });
+              } else {
+                fs.createReadStream('public/redirect_icon.ico').pipe(fs.createWriteStream('public/favicons/' + newLink.get('code') + '.ico'));
+                res.send(200, newLink);
+              }
+            });
           });
         });
       });
