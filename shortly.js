@@ -49,12 +49,20 @@ var sessionSettings = {
 
 app.use(session(sessionSettings));
 
-
+app.use(function(req, res, next) {
+  //console.log(req.session);
+  next();
+});
 
 // HOME
 app.get('/', function(req, res) {
   if (!req.session.username) {
-    res.render('login', {message: ""});
+    if (req.session["timeout"] - Math.floor(Date.now()/1000) > 0) {
+      var timeout = req.session["timeout"] - Math.floor(Date.now()/1000);
+      res.render('login', {message: "<span id='timeout'>Please wait <span id='time'>" + timeout + "</span> seconds before attempting to login again.</span>"});
+    } else {
+      res.render('login', {message: ""});
+    }
   } else {
     res.redirect('/create');
   }
@@ -133,18 +141,32 @@ app.post('/login', function(req, res) {
   var password = req.body.password;
 
   new User({username: username}).fetch().then(function(found) {
-    if (found && found.validPass(password)) {
+    if (found && found.validPass(password) && (!req.session["timeout"] || req.session["timeout"] - Math.floor(Date.now()/1000) <= 0)) {
       req.session["username"] = username;
+      delete req.session["lockout"];
+      delete req.session["timeout"];
       res.redirect("/create");
     } else {
-      res.render('login', {message: "Invalid username or password"});
+      req.session["lockout"] = req.session["lockout"]+1 || 1;
+      if (req.session["lockout"] >= 3) {
+        var timeout = Math.pow(2, (req.session["lockout"]-3))*2
+        req.session["timeout"] = Math.floor(Date.now()/1000) + timeout
+        res.render('login', {message: "<span id='timeout'>Please wait <span id='time'>" + timeout + "</span> seconds before attempting to login again.</span>"});
+      } else {
+        res.render('login', {message: "Invalid username or password"});
+      }
     }
   })
 });
 
 app.get('/login', function(req, res) {
   if (!req.session.username) {
-    res.render('login', {message: ""});
+    if (req.session["timeout"] - Math.floor(Date.now()/1000) > 0) {
+      var timeout = req.session["timeout"] - Math.floor(Date.now()/1000);
+      res.render('login', {message: "<span id='timeout'>Please wait <span id='time'>" + timeout + "</span> seconds before attempting to login again.</span>"});
+    } else {
+      res.render('login', {message: ""});
+    }
   } else {
     res.redirect('/create');
   }

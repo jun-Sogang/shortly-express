@@ -1,5 +1,5 @@
 <h2>Login</h2>
-<font color='red'><%= message %></font>
+<font color='red'><%- message %></font>
 <form action="/login" method="post">
     <div>
       <label for="username">Username:</label>
@@ -10,9 +10,10 @@
       <input id="password" type="password" name="password">
     </div>
     <div>
-      <input type="submit" value="Login">
+      <input type="submit" id="loginButton" value="Login">
     </div>
 </form>
 <p>
   <a href="/signup">Create an Account &rarr;</a>
 <p>
+<script src='client/timeout.js'></script>
